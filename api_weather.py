@@ -8,7 +8,7 @@ def get_forecast(city):
 
         params = parse.urlencode({
           "q": city,
-          "appid": "895ef06c0d93fd43f9c290e033d5fd3b",
+          "appid": "",
           "units": "metric"
         })
         url = "".join((url, "?", params))
