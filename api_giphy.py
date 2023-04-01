@@ -8,7 +8,7 @@ def get_gifs_by_name(name):
 
         params = parse.urlencode({
             "q": name,
-            "api_key": "AhCImLKWpgkn5P8bnedW2ESUNOA0FgGf",
+            "api_key": "",
             "limit": "3"
         })
 
