@@ -1,76 +1,93 @@
-# 1.Write a program that generate 26 text files named A.txt, B.txt, and so on up to Z.txt
-# To each file append a random number between 1 and 100.
-# Create a summary file (summary.txt) that contains name of the file and number in that file:
-import random
-import csv
+import inspect
 
 
-text = ''
-for i in range(ord('A'), ord('Z')+1):
-    random_number = random.randint(1, 100)
-    with open(chr(i) + '.txt', 'w') as file:
-        file.write(str(random_number))
-    text = text + chr(i) + '.txt: ' + str(random_number)+'\n'
+# Write a decorator that ensures a function is only called by users with a specific role.
+# Each function should have an user_type with a string type in kwargs
+def is_admin(func):
+    def wrapper(*args, **kwargs):
+        if kwargs['user_type'] == 'admin':
+            func(*args, **kwargs)
+        else:
+            print('Permission denied')
 
-with open('summary.txt', 'w') as sum_file:
-    sum_file.write(text)
-
-# 2.Create file with some content. As example you can take this one
-# Create second file and copy content of the first file to the second file in upper case.
-text = '''
-    Тому що ніколи тебе не вирвеш,
-    ніколи не забереш,
-    тому що вся твоя свобода
-    складається з меж,
-    тому що в тебе немає
-    жодного вантажу,
-    тому що ти ніколи не слухаєш,
-    оскільки знаєш і так,
-    що я скажу,
-'''
-with open('homework.txt', 'w') as file:
-    file.write(text)
-
-with open('homework.txt', 'r') as file:
-    text = file.read()
-
-with open('homework_copy.txt', 'w', encoding='utf-8') as file:
-    file.write(text.upper())
-
-# Write a program that will simulate user score in a game.
-# Create a list with 5 player's names.
-# After that simulate 100 games for each player.
-# As a result of the game create a list with player's name and his score (0-1000 range).
-# And save it to a CSV file.
+    return wrapper
 
 
-players_list = ['Josh', 'Luke', 'Kate', 'Mark', 'Mary']
-fields = ['Player name', 'Score']
-results_list = []
-
-for player in players_list:
-    for i in range(0, 100):
-        game_result = [player, str(random.randint(0, 1000))]
-        results_list.append(game_result)
-
-with open('game_score.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(fields)
-    writer.writerows(results_list)
+@is_admin
+def show_customer_receipt(user_type: str):
+    print('Successfully executed')
 
 
-# 4. Write a script that reads the data from previous CSV file and creates a new file called high_scores.csv where each row contains
-# the player name and their highest score. Final score should sorted by descending of highest score
-result = {}
-with open('game_score.csv', 'r') as file:
-    reader = csv.reader(file)
-    next(reader, None)
-    for row in reader:
-        print(row)
-        if row[0] not in result or result[row[0]] < row[1]:
-            result[row[0]] = row[1]
-result_list = [[key, value] for key, value in result.items()]
-with open('high_scores.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(fields)
-    writer.writerows(result_list)
+show_customer_receipt(user_type='user')
+
+
+# 2.Write a decorator that wraps a function in a try-except block and print an error if error has happened
+def catch_errors(func):
+    def wrapper(data):
+        try:
+            func(data)
+        except (KeyError) as e:
+            print('Found 1 error during execution of your function: ', e)
+
+    return wrapper
+
+
+@catch_errors
+def some_function_with_risky_operation(data):
+    print(data['key'])
+
+
+some_function_with_risky_operation({'key': 'bar'})
+
+# 3. Optional: Create a decorator that will check types. It should take a function with arguments and validate inputs with annotations.
+
+
+def check_types(func):
+    def wrapper(*args, **kwargs):
+        full_arg_spec = inspect.getfullargspec(func)
+        i = 0
+        args_list = full_arg_spec.args
+        args_type = full_arg_spec.annotations
+        for arg in args_list:
+            if (type(args[i]) != args_type[arg]):
+                raise ValueError('Please check arguments types')
+            i += 1
+            func(*args, **kwargs)
+
+    return wrapper
+
+
+@check_types
+def add(a: int, b: int) -> int:
+    return a + b
+
+
+add(1, 2)
+
+# Create a function that caches the result of a function, so that if it is called with same argument multiple
+# times, it returns the cached result first instead of re-executing the function.
+# It`s one of the real task on the project
+cache = {}
+
+
+def memorize(func):
+    def wrapper(num):
+        if num in cache:
+            print('Returned From Cache: ', cache[num])
+        else:
+            cache[num] = func(num)
+            print('Calculated: ', cache[num])
+    return wrapper
+
+
+@memorize
+def sum(num: int) -> int:
+    sum = 0
+    for i in range(1, num + 1):
+        sum += i
+    return sum
+
+
+sum(100)
+sum(200)
+sum(100)
