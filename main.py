@@ -1,47 +1,122 @@
-# 1. Modify the Country class to include a third instance attribute called capital as a string.
-# Store your new class in a script and test it out by adding the following code at the bottom of the script:
-# japan = Country('Japan', 140_000_000, 'Tokyo')
-# print(f"{japan.name} population is {japan.population} and capital is {japan.capital}.")
-# The output of your script should be:
-# Japan population is 140000000 and capital is Tokyo.
+# Write a Python class named Circle constructed by a radius and two methods which will compute the area and the
+# perimeter of a circle.
+class Circle:
+    def __init__(self, radius: int):
+        self.radius = radius
 
-# 2. Add increase_population method to country class.
-# This method should take an argument and increase population of the country on this number.
+    def circle_area(self):
+        return 3.14 * pow(self.radius, 2)
 
-# 3. Create add method to add two countries together.
-# This method should create another country object with the name of the
-# two countries combined and population of the two countries added together.
-
-# 4.(Optional) Implement previous method with magic method
-class Country:
-    def __init__(self, name: str, population: int, capital: str = ''):
-        self.name = name
-        self.population = population
-        self.capital = capital
-
-    def increase_population(self, increase_by):
-        self.population += increase_by
-
-    def add_country(self, second_country):
-        name = self.name + second_country.name
-        population = self.population + second_country.population
-        return Country(name, population)
-
-    def __add__(self, second_country):
-        name = self.name + second_country.name
-        population = self.population + second_country.population
-        return Country(name, population)
+    def circle_perimeter(self):
+        return 3.14 * self.radius * 2
 
 
-japan = Country('Japan', 140_000_000, 'Tokyo')
-print(f"{japan.name} population is {japan.population} and capital is {japan.capital}.")
-japan.increase_population(111)
-print(f"{japan.name} population is {japan.population} and capital is {japan.capital}.")
-bosnia = Country('Bosnia', 10_000_000)
-herzegovina = Country('Herzegovina', 5_000_000)
+circle_object = Circle(10)
+print(circle_object.circle_area())
+print(circle_object.circle_perimeter())
 
-new_country = bosnia.add_country(herzegovina)
-print(f"{new_country.name} population is {new_country.population}")
 
-magic_country = bosnia+herzegovina
-print(f"{magic_country.name} population is {magic_country.population}")
+# 2. Write a Python program to create two empty classes, Student and Marks. Now create some instances and check
+# whether they are instances of the said classes or not. Also, check whether the said classes are subclasses of the
+# built-in object class or not.
+
+class Student:
+    pass
+
+
+class Marks:
+    pass
+
+
+student = Student()
+marks = Marks()
+
+print(isinstance(marks, Student))
+print(isinstance(marks, Marks))
+
+print(isinstance(Student, object))
+print(isinstance(Marks, object))
+
+
+# A Bank
+#
+# Using the Account class as a base class, write two derived classes called SavingsAccount and CurrentAccount. A
+# SavingsAccount object, in addition to the attributes of an Account object, should have an interest attribute and a
+# method which adds interest to the account. A CurrentAccount object, in addition to the attributes of an Account
+# object, should have an overdraft limit attribute.
+#
+# Now create a Bank class, an object of which contains an array of Account objects. Accounts in the array could be
+# instances of the Account class, the SavingsAccount class, or the CurrentAccount class. Create some test accounts (
+# some of each type).
+#
+# Write an update method in the Bank class. It iterates through each account, updating it in the following ways:
+# Savings accounts get interest added (via the method you already wrote); CurrentAccounts get a letter sent if they
+# are in overdraft. (use print to 'send' the letter).
+#
+# The Bank class requires methods for opening and closing accounts, and for paying a dividend into each account.
+
+
+class Account:
+    def __init__(self, balance):
+        self.balance = balance
+
+    def deposit(self, amount: int):
+        self.balance += amount
+
+    def withdraw(self, amount: int):
+        self.balance -= amount
+
+class SavingsAccount(Account):
+
+    def __init__(self, start_balance: int = 0, interest: float = 0):
+        super().__init__(start_balance)
+        self.interest = interest
+
+    def add_interest(self, interest: float = 0):
+        self.interest = interest
+
+
+class CurrentAccount(Account):
+    def __init__(self, start_balance:int = 0, overdraft: int = 0):
+        super().__init__(start_balance)
+        self.overdraft = overdraft
+
+
+class Bank:
+    def __init__(self, accounts: dict = {}):
+        self.accounts = accounts
+
+    def create_account(self, account_number: str, account_type: str):
+        if (account_type == 'Saving'):
+            self.accounts[account_number] = SavingsAccount()
+        elif (account_type == 'Current'):
+            self.accounts[account_number] = CurrentAccount()
+        else:
+            raise "Error: Wrong Account Type"
+
+    def close_account(self, account_number: str):
+        del self.accounts[account_number]
+        return
+
+    def update(self):
+        for i in self.accounts:
+            if isinstance(self.accounts[i], CurrentAccount) and self.accounts[i].balance < 0:
+                print(f"Account {i} is in overdraft")
+            elif isinstance(self.accounts[i], SavingsAccount):
+                self.accounts[i].add_interest(5)
+
+    def get_account(self, account_number: str):
+        return self.accounts[account_number]
+
+# bank = Bank.create_account('12345')
+bank = Bank()
+bank.create_account('1', 'Current')
+bank.create_account('2', 'Current')
+bank.create_account('3', 'Saving')
+bank.create_account('4', 'Current')
+bank.close_account('2')
+bank.get_account('4').deposit(5)
+bank.get_account('1').withdraw(5)
+
+bank.update()
+
